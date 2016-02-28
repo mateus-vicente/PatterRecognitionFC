@@ -6,6 +6,8 @@ import Tkinter
 from ROOT import *
 from math import sqrt
 
+pixel_to_um = 1.47
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--chip", help = "path to the chip file")
@@ -198,8 +200,8 @@ area_sub.SetLineColor(3)
 
 
 can2 = TCanvas()
-histo_dx = TH1D("h","hx",40,-10*1.47,10*1.47)
-histo_dy = TH1D("h2","hy",40,-10*1.47,10*1.47)
+histo_dx = TH1D("h","hx",40,-10*pixel_to_um,10*pixel_to_um)
+histo_dy = TH1D("h2","hy",40,-10*pixel_to_um,10*pixel_to_um)
 
 #Calculate offsets between matched contours
 for i,c in enumerate(cnts_sub) :
@@ -209,8 +211,8 @@ for i,c in enumerate(cnts_sub) :
             (x2,y2),radius = cv2.minEnclosingCircle(c2)
             dx = x2-x
             dy = y2-y
-            histo_dx.Fill(dx*1.47)
-            histo_dy.Fill(dy*1.47)
+            histo_dx.Fill(dx*pixel_to_um)
+            histo_dy.Fill(dy*pixel_to_um)
 
 #Fitting and drawing
             
