@@ -28,13 +28,20 @@ gray_image_sub = cv2.adaptiveThreshold(gray_image_sub,255,cv2.ADAPTIVE_THRESH_GA
 gray_image_chip = cv2.adaptiveThreshold(gray_image_chip,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,13,2)
 
 #All kind of other filtering, un-used for now
-kernel = np.ones((2,2),np.uint8)
-kernel = np.ones((2,2),np.float32)/4
-#gray_image_sub = cv2.morphologyEx(gray_image_sub, cv2.MORPH_CLOSE, kernel)
-#gray_image_sub = cv2.morphologyEx(gray_image_sub, cv2.MORPH_OPEN, kernel)
+kernel = np.ones((3,3),np.uint8)
+#kernel = np.ones((2,2),np.float32)/4
 
-#gray_image_chip = cv2.morphologyEx(gray_image_chip, cv2.MORPH_CLOSE, kernel)
-#gray_image_chip = cv2.morphologyEx(gray_image_chip, cv2.MORPH_OPEN, kernel)
+n_loops = 1
+for i in range(n_loops):
+    kernel = np.ones((i+1,i+1),np.uint8)
+    gray_image_sub = cv2.morphologyEx(gray_image_sub, cv2.MORPH_CLOSE, kernel)
+    gray_image_sub = cv2.morphologyEx(gray_image_sub, cv2.MORPH_OPEN, kernel)
+
+    gray_image_chip = cv2.morphologyEx(gray_image_chip, cv2.MORPH_CLOSE, kernel)
+    gray_image_chip = cv2.morphologyEx(gray_image_chip, cv2.MORPH_OPEN, kernel)
+
+
+
 #gray_image_chip = cv2.filter2D(gray_image_chip,-1,kernel)
 #gray_image_sub = cv2.filter2D(gray_image_sub,-1,kernel)
 
@@ -42,6 +49,13 @@ kernel = np.ones((2,2),np.float32)/4
 #Display the filtered images
 cv2.imshow("Mask_sub", gray_image_sub)
 cv2.imshow("Mask_chip", gray_image_chip)
+
+cv2.imwrite('filtered_substrate.png',gray_image_sub)
+cv2.imwrite('filtered_chip.png',gray_image_chip)
+
+
+
+
 
 cv2.namedWindow("image_sub",cv2.WINDOW_NORMAL)
 
@@ -73,11 +87,11 @@ centers_sub = []
 minArea_sub = 2000
 maxArea_sub = 3000
 minArea_chip = 1150
-maxArea_chip = 1500
+maxArea_chip = 1800
 
 #Parameters for cut on solidity
 solidity_min_sub = 0
-solidity_min_chip = 0.5
+solidity_min_chip = 0.3
 
 #Parameter for cut on aspect ratio
 aspect_ratio_min_chip = 0.3
@@ -160,16 +174,15 @@ for i,c in enumerate(cnts_chip):
         solidity = float(area)/hull_area
     else :
         solidity =0
-    if area>minArea_chip and area <maxArea_chip and (aspect_ratio<1.8 and aspect_ratio>0.3) and solidity>0.5 : 
-        (x,y),radius = cv2.minEnclosingCircle(c)
-        center = (int(x),int(y))
-        centers_chip.append(center)
-        radius = int(radius)
-        if matched_chip[i]>0 :
-            cv2.circle(image_sub,center,radius,(0,255,0),1)
-            cv2.drawContours(image_sub, [c], -1, (0, 255, 0), 1)
-            cv2.circle(image_chip,center,radius,(0,255,0),1)
-            cv2.drawContours(image_chip, [c], -1, (0, 255, 0), 1)
+    (x,y),radius = cv2.minEnclosingCircle(c)
+    center = (int(x),int(y))
+    centers_chip.append(center)
+    radius = int(radius)
+    if matched_chip[i]>0 :
+        cv2.circle(image_sub,center,radius,(0,255,0),1)
+        cv2.drawContours(image_sub, [c], -1, (0, 255, 0), 1)
+        cv2.circle(image_chip,center,radius,(0,255,0),1)
+        cv2.drawContours(image_chip, [c], -1, (0, 255, 0), 1)
                          
 # loop over the contours
 for i,c in enumerate(cnts_sub):
@@ -180,16 +193,15 @@ for i,c in enumerate(cnts_sub):
     x,y,w,h = cv2.boundingRect(c)
     aspect_ratio = float(w)/h
     #print "area = %f"%area
-    if area>minArea_sub and area <maxArea_sub and (aspect_ratio<1.5 and aspect_ratio>0.5) : 
-        (x,y),radius = cv2.minEnclosingCircle(c)
-        center = (int(x),int(y))
-        centers_sub.append(center)
-        radius = int(radius)
-        if matched_sub[i]>0 :
-            cv2.circle(image_sub,center,radius,(255,0,0),1)
-            cv2.drawContours(image_sub, [c], -1, (255, 0, 0), 1)
-            cv2.circle(image_chip,center,radius,(0,255,0),1)
-            cv2.drawContours(image_chip, [c], -1, (0, 255, 0), 1)   
+    (x,y),radius = cv2.minEnclosingCircle(c)
+    center = (int(x),int(y))
+    centers_sub.append(center)
+    radius = int(radius)
+    if matched_sub[i]>0 :
+        cv2.circle(image_sub,center,radius,(255,0,0),1)
+        cv2.drawContours(image_sub, [c], -1, (255, 0, 0), 1)
+        cv2.circle(image_chip,center,radius,(255,0,0),1)
+        cv2.drawContours(image_chip, [c], -1, (0, 255, 0), 1)   
 
 cv2.imshow("image_sub", image_sub)
 cv2.waitKey(5000)
