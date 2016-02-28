@@ -168,7 +168,8 @@ for i,c in enumerate(cnts_chip):
         if matched_chip[i]>0 :
             cv2.circle(image_sub,center,radius,(0,255,0),1)
             cv2.drawContours(image_sub, [c], -1, (0, 255, 0), 1)
-
+            cv2.circle(image_chip,center,radius,(0,255,0),1)
+            cv2.drawContours(image_chip, [c], -1, (0, 255, 0), 1)
                          
 # loop over the contours
 for i,c in enumerate(cnts_sub):
@@ -187,10 +188,16 @@ for i,c in enumerate(cnts_sub):
         if matched_sub[i]>0 :
             cv2.circle(image_sub,center,radius,(255,0,0),1)
             cv2.drawContours(image_sub, [c], -1, (255, 0, 0), 1)
-   
+            cv2.circle(image_chip,center,radius,(0,255,0),1)
+            cv2.drawContours(image_chip, [c], -1, (0, 255, 0), 1)   
+
 cv2.imshow("image_sub", image_sub)
 cv2.waitKey(5000)
+cv2.imwrite('pixel fitted_substrate.png',image_sub)
 
+cv2.imshow("image_chip", image_chip)
+cv2.waitKey(5000)
+cv2.imwrite('pixel fitted_chip.png',image_chip)
 
 #plotting of the result
 can = TCanvas()
